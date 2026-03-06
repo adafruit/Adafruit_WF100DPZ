@@ -28,6 +28,8 @@
  */
 Adafruit_WF100DPZ::Adafruit_WF100DPZ() {
   _i2c_dev = nullptr;
+  _spi3_dev = nullptr;
+  _generic_dev = nullptr;
 }
 
 /**
@@ -37,10 +39,14 @@ Adafruit_WF100DPZ::~Adafruit_WF100DPZ() {
   if (_i2c_dev) {
     delete _i2c_dev;
   }
+  if (_spi3_dev) {
+    delete _spi3_dev;
+  }
+  // Note: _generic_dev is owned by _spi3_dev, don't delete separately
 }
 
 /**
- * @brief Initialize the sensor
+ * @brief Initialize the sensor over I2C
  * @param addr I2C address (default 0x6D)
  * @param wire Pointer to TwoWire instance (default &Wire)
  * @return true if initialization successful (Part_ID verified)
@@ -50,6 +56,11 @@ bool Adafruit_WF100DPZ::begin(uint8_t addr, TwoWire* wire) {
   if (_i2c_dev) {
     delete _i2c_dev;
   }
+  if (_spi3_dev) {
+    delete _spi3_dev;
+    _spi3_dev = nullptr;
+  }
+  _generic_dev = nullptr;
 
   _i2c_dev = new Adafruit_I2CDevice(addr, wire);
 
@@ -73,13 +84,63 @@ bool Adafruit_WF100DPZ::begin(uint8_t addr, TwoWire* wire) {
 }
 
 /**
+ * @brief Initialize the sensor over 3-wire SPI
+ * @param cs Chip select pin
+ * @param clk Clock pin
+ * @param data Bidirectional data pin
+ * @param freq Clock frequency in Hz (default 1MHz)
+ * @return true if initialization successful (Part_ID verified)
+ * @return false if communication failed or Part_ID mismatch
+ */
+bool Adafruit_WF100DPZ::beginSPI(int8_t cs, int8_t clk, int8_t data,
+                                 uint32_t freq) {
+  if (_i2c_dev) {
+    delete _i2c_dev;
+    _i2c_dev = nullptr;
+  }
+  if (_spi3_dev) {
+    delete _spi3_dev;
+  }
+
+  _spi3_dev = new Adafruit_SPI3Device(cs, clk, data, freq);
+
+  if (!_spi3_dev->begin()) {
+    return false;
+  }
+
+  _generic_dev = _spi3_dev->getGenericDevice();
+
+  // Wait for sensor to stabilize
+  delay(10);
+
+  // Note: Do NOT soft reset in SPI mode. The soft reset command (0x24)
+  // sets SDO_active=1 (4-wire mode) and causes the sensor to switch
+  // to I2C mode when CS floats high. Just verify Part_ID.
+
+  // Verify Part_ID
+  uint8_t part_id = getPartID();
+  if (part_id != WF100DPZ_PART_ID) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * @brief Read the Part ID from the sensor
  * @return Part ID value (expect 0x49)
  */
 uint8_t Adafruit_WF100DPZ::getPartID() {
-  Adafruit_BusIO_Register part_id_reg =
-      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_PART_ID, 1);
-  return part_id_reg.read();
+  if (_i2c_dev) {
+    Adafruit_BusIO_Register part_id_reg =
+        Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_PART_ID, 1);
+    return part_id_reg.read();
+  } else if (_generic_dev) {
+    Adafruit_BusIO_Register part_id_reg =
+        Adafruit_BusIO_Register(_generic_dev, WF100DPZ_REG_PART_ID, 1);
+    return part_id_reg.read();
+  }
+  return 0;
 }
 
 /**
@@ -87,9 +148,16 @@ uint8_t Adafruit_WF100DPZ::getPartID() {
  * @return Status register value (DRDY in bit 0, errors in bits 7:4)
  */
 uint8_t Adafruit_WF100DPZ::getStatus() {
-  Adafruit_BusIO_Register status_reg =
-      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_STATUS, 1);
-  return status_reg.read();
+  if (_i2c_dev) {
+    Adafruit_BusIO_Register status_reg =
+        Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_STATUS, 1);
+    return status_reg.read();
+  } else if (_generic_dev) {
+    Adafruit_BusIO_Register status_reg =
+        Adafruit_BusIO_Register(_generic_dev, WF100DPZ_REG_STATUS, 1);
+    return status_reg.read();
+  }
+  return 0;
 }
 
 /**
@@ -104,12 +172,22 @@ bool Adafruit_WF100DPZ::hasError() {
 /**
  * @brief Perform a soft reset of the sensor
  * @return true if reset command was written successfully
- * @return false if I2C write failed
+ * @return false if write failed
+ * @note In SPI mode, soft reset switches sensor to I2C mode. Avoid calling
+ *       this method when using SPI.
  */
 bool Adafruit_WF100DPZ::softReset() {
-  Adafruit_BusIO_Register spi_ctrl_reg =
-      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_SPI_CTRL, 1);
-  return spi_ctrl_reg.write(WF100DPZ_SOFT_RESET);
+  if (_i2c_dev) {
+    Adafruit_BusIO_Register spi_ctrl_reg =
+        Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_SPI_CTRL, 1);
+    return spi_ctrl_reg.write(WF100DPZ_SOFT_RESET);
+  } else if (_generic_dev) {
+    // Warning: soft reset in SPI mode will switch sensor to I2C mode
+    Adafruit_BusIO_Register spi_ctrl_reg =
+        Adafruit_BusIO_Register(_generic_dev, WF100DPZ_REG_SPI_CTRL, 1);
+    return spi_ctrl_reg.write(WF100DPZ_SOFT_RESET);
+  }
+  return false;
 }
 
 /**
@@ -119,15 +197,28 @@ bool Adafruit_WF100DPZ::softReset() {
  * @return false if timeout expired
  */
 bool Adafruit_WF100DPZ::_waitDRDY(uint16_t timeout_ms) {
-  Adafruit_BusIO_Register status_reg =
-      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_STATUS, 1);
-
   uint32_t start = millis();
-  while ((millis() - start) < timeout_ms) {
-    if (status_reg.read() & WF100DPZ_STATUS_DRDY) {
-      return true;
+
+  if (_i2c_dev) {
+    Adafruit_BusIO_Register status_reg =
+        Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_STATUS, 1);
+
+    while ((millis() - start) < timeout_ms) {
+      if (status_reg.read() & WF100DPZ_STATUS_DRDY) {
+        return true;
+      }
+      delayMicroseconds(50);
     }
-    delayMicroseconds(50);
+  } else if (_generic_dev) {
+    Adafruit_BusIO_Register status_reg =
+        Adafruit_BusIO_Register(_generic_dev, WF100DPZ_REG_STATUS, 1);
+
+    while ((millis() - start) < timeout_ms) {
+      if (status_reg.read() & WF100DPZ_STATUS_DRDY) {
+        return true;
+      }
+      delayMicroseconds(50);
+    }
   }
   return false;
 }
@@ -135,27 +226,44 @@ bool Adafruit_WF100DPZ::_waitDRDY(uint16_t timeout_ms) {
 /**
  * @brief Trigger a combined temperature + pressure conversion
  * @return true if command was written successfully
- * @return false if I2C write failed
+ * @return false if write failed
  */
 bool Adafruit_WF100DPZ::_triggerCombined() {
-  Adafruit_BusIO_Register cmd_reg =
-      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
-  return cmd_reg.write(WF100DPZ_CMD_COMBINED);
+  if (_i2c_dev) {
+    Adafruit_BusIO_Register cmd_reg =
+        Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
+    return cmd_reg.write(WF100DPZ_CMD_COMBINED);
+  } else if (_generic_dev) {
+    Adafruit_BusIO_Register cmd_reg =
+        Adafruit_BusIO_Register(_generic_dev, WF100DPZ_REG_CMD, 1);
+    return cmd_reg.write(WF100DPZ_CMD_COMBINED);
+  }
+  return false;
 }
 
 /**
  * @brief Read raw 24-bit pressure value
  * @param raw Pointer to store the signed 24-bit value
  * @return true if read successful
- * @return false if I2C read failed
+ * @return false if read failed
  */
 bool Adafruit_WF100DPZ::_readRawPressure(int32_t* raw) {
   uint8_t buffer[3];
 
-  // Read 3 bytes starting at DATA_MSB
-  Adafruit_BusIO_Register data_reg =
-      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_DATA_MSB, 3);
-  if (!data_reg.read(buffer, 3)) {
+  if (_i2c_dev) {
+    // Read 3 bytes starting at DATA_MSB
+    Adafruit_BusIO_Register data_reg =
+        Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_DATA_MSB, 3);
+    if (!data_reg.read(buffer, 3)) {
+      return false;
+    }
+  } else if (_generic_dev) {
+    Adafruit_BusIO_Register data_reg =
+        Adafruit_BusIO_Register(_generic_dev, WF100DPZ_REG_DATA_MSB, 3);
+    if (!data_reg.read(buffer, 3)) {
+      return false;
+    }
+  } else {
     return false;
   }
 
@@ -178,15 +286,25 @@ bool Adafruit_WF100DPZ::_readRawPressure(int32_t* raw) {
  * @param raw_msb Pointer to store the signed MSB
  * @param raw_lsb Pointer to store the unsigned LSB
  * @return true if read successful
- * @return false if I2C read failed
+ * @return false if read failed
  */
 bool Adafruit_WF100DPZ::_readRawTemperature(int8_t* raw_msb, uint8_t* raw_lsb) {
   uint8_t buffer[2];
 
-  // Read 2 bytes starting at TEMP_MSB
-  Adafruit_BusIO_Register temp_reg =
-      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_TEMP_MSB, 2);
-  if (!temp_reg.read(buffer, 2)) {
+  if (_i2c_dev) {
+    // Read 2 bytes starting at TEMP_MSB
+    Adafruit_BusIO_Register temp_reg =
+        Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_TEMP_MSB, 2);
+    if (!temp_reg.read(buffer, 2)) {
+      return false;
+    }
+  } else if (_generic_dev) {
+    Adafruit_BusIO_Register temp_reg =
+        Adafruit_BusIO_Register(_generic_dev, WF100DPZ_REG_TEMP_MSB, 2);
+    if (!temp_reg.read(buffer, 2)) {
+      return false;
+    }
+  } else {
     return false;
   }
 
@@ -296,7 +414,7 @@ bool Adafruit_WF100DPZ::readTempPressure(float* pressure, float* temperature) {
  * @brief Enable sleep mode with periodic conversions
  * @param interval Sleep time code (0-15, interval × ~62.5 ms)
  * @return true if command was written successfully
- * @return false if I2C write failed
+ * @return false if write failed
  */
 bool Adafruit_WF100DPZ::setSleepMode(uint8_t interval) {
   if (interval > 0x0F) {
@@ -306,18 +424,32 @@ bool Adafruit_WF100DPZ::setSleepMode(uint8_t interval) {
   // Sleep_time in upper nibble, Sco=1, Mode=SLEEP_PERIODIC (0x03)
   uint8_t cmd = (interval << 4) | 0x08 | WF100DPZ_MODE_SLEEP_PERIODIC;
 
-  Adafruit_BusIO_Register cmd_reg =
-      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
-  return cmd_reg.write(cmd);
+  if (_i2c_dev) {
+    Adafruit_BusIO_Register cmd_reg =
+        Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
+    return cmd_reg.write(cmd);
+  } else if (_generic_dev) {
+    Adafruit_BusIO_Register cmd_reg =
+        Adafruit_BusIO_Register(_generic_dev, WF100DPZ_REG_CMD, 1);
+    return cmd_reg.write(cmd);
+  }
+  return false;
 }
 
 /**
  * @brief Stop sleep mode and return to idle
  * @return true if command was written successfully
- * @return false if I2C write failed
+ * @return false if write failed
  */
 bool Adafruit_WF100DPZ::stopSleepMode() {
-  Adafruit_BusIO_Register cmd_reg =
-      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
-  return cmd_reg.write(0x00);
+  if (_i2c_dev) {
+    Adafruit_BusIO_Register cmd_reg =
+        Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
+    return cmd_reg.write(0x00);
+  } else if (_generic_dev) {
+    Adafruit_BusIO_Register cmd_reg =
+        Adafruit_BusIO_Register(_generic_dev, WF100DPZ_REG_CMD, 1);
+    return cmd_reg.write(0x00);
+  }
+  return false;
 }

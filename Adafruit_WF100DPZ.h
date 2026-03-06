@@ -27,6 +27,8 @@
 #include <Arduino.h>
 #include <Wire.h>
 
+#include "Adafruit_SPI3Device.h"
+
 /** Default I2C address (confirmed by bus scan; not in datasheet) */
 #define WF100DPZ_DEFAULT_ADDR 0x6D
 /** Expected Part ID value from OTP */
@@ -108,6 +110,7 @@ class Adafruit_WF100DPZ {
   ~Adafruit_WF100DPZ();
 
   bool begin(uint8_t addr = WF100DPZ_DEFAULT_ADDR, TwoWire* wire = &Wire);
+  bool beginSPI(int8_t cs, int8_t clk, int8_t data, uint32_t freq = 1000000);
 
   float readPressure();
   float readTemperature();
@@ -123,6 +126,8 @@ class Adafruit_WF100DPZ {
 
  private:
   Adafruit_I2CDevice* _i2c_dev;
+  Adafruit_SPI3Device* _spi3_dev;
+  Adafruit_GenericDevice* _generic_dev;
 
   bool _waitDRDY(uint16_t timeout_ms = 15);
   bool _triggerCombined();
