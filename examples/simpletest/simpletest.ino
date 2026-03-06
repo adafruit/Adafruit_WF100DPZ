@@ -2,7 +2,7 @@
  * @file simpletest.ino
  *
  * Simple example for the WF100DPZ pressure sensor.
- * Reads temperature and pressure every second.
+ * Uses periodic mode to continuously read temperature and pressure.
  */
 
 #include <Adafruit_WF100DPZ.h>
@@ -29,12 +29,13 @@ void setup() {
   Serial.println(wf100dpz.getPartID(), HEX);
   Serial.println(F("WF100DPZ Found!"));
   Serial.println(F(""));
+
+  // Start periodic conversions at ~125ms interval
+  wf100dpz.setSleepMode(WF100DPZ_SLEEP_125MS);
+  delay(150); // wait for first conversion
 }
 
 void loop() {
-  wf100dpz.triggerConversion();
-  wf100dpz.waitDRDY();
-
   float pressure, temperature;
 
   if (wf100dpz.readTempPressure(&pressure, &temperature)) {
