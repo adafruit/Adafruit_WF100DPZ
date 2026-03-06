@@ -115,27 +115,6 @@ void setup() {
       Serial.println(F("Unknown"));
       break;
   }
-
-  // --- Sleep mode demo ---
-  wf100dpz.setSleepMode(WF100DPZ_SLEEP_125MS);
-  Serial.println(F("Sleep mode started at 125 ms interval"));
-  delay(200);
-  float pressure, temperature;
-  if (wf100dpz.readTempPressure(&pressure, &temperature)) {
-    Serial.print(F("  Periodic read: T="));
-    Serial.print(temperature, 2);
-    Serial.print(F(" C, P="));
-    Serial.print(pressure, 2);
-    Serial.println(F(" kPa"));
-  }
-  wf100dpz.stopSleepMode();
-  Serial.println(F("Sleep mode stopped"));
-
-  // --- Soft reset ---
-  wf100dpz.softReset();
-  delay(10);
-  Serial.print(F("Part ID after reset: 0x"));
-  Serial.println(wf100dpz.getPartID(), HEX);
 }
 
 void loop() {
