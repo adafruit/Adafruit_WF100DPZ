@@ -304,24 +304,9 @@ float Adafruit_WF100DPZ::readTemperature() {
  *       In periodic sleep mode, data is always available.
  */
 bool Adafruit_WF100DPZ::readTempPressure(float* pressure, float* temperature) {
-  int32_t raw_pressure;
-  if (!_readRawPressure(&raw_pressure)) {
-    return false;
-  }
-
-  int8_t raw_msb;
-  uint8_t raw_lsb;
-  if (!_readRawTemperature(&raw_msb, &raw_lsb)) {
-    return false;
-  }
-
-  float normalized = (float)raw_pressure / WF100DPZ_PRESSURE_DIV;
-  *pressure = normalized * WF100DPZ_PRESSURE_SCALE + WF100DPZ_PRESSURE_OFFSET;
-
-  *temperature = WF100DPZ_TEMP_OFFSET + (float)raw_msb +
-                 (float)raw_lsb * WF100DPZ_TEMP_LSB_SCALE;
-
-  return true;
+  *pressure = readPressure();
+  *temperature = readTemperature();
+  return (!isnan(*pressure) && !isnan(*temperature));
 }
 
 /**
