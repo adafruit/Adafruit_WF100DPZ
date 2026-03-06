@@ -48,5 +48,5 @@ void loop() {
     Serial.println(F("Failed to read sensor!"));
   }
 
-  delay(100);
+  delay(125);
 }
