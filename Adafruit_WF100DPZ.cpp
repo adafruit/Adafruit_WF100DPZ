@@ -178,9 +178,11 @@ bool Adafruit_WF100DPZ::_waitDRDY(uint16_t timeout_ms) {
 
   Adafruit_BusIO_Register status_reg =
       Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_STATUS, 1);
+  Adafruit_BusIO_RegisterBits drdy_bit =
+      Adafruit_BusIO_RegisterBits(&status_reg, 1, 0); // bit [0]
 
   while ((millis() - start) < timeout_ms) {
-    if (status_reg.read() & WF100DPZ_STATUS_DRDY) {
+    if (drdy_bit.read()) {
       return true;
     }
     delayMicroseconds(50);
