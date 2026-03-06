@@ -50,8 +50,8 @@ void setup() {
   }
 
   // Test 2: Start sleep mode with interval 2 (~125ms)
-  Serial.print(F("2. setSleepMode(2): "));
-  if (!sensor.setSleepMode(2)) {
+  Serial.print(F("2. setSleepMode(WF100DPZ_SLEEP_125MS): "));
+  if (!sensor.setSleepMode(WF100DPZ_SLEEP_125MS)) {
     Serial.println(F("FAIL - setSleepMode() returned false"));
     allPass = false;
   } else {
