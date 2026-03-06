@@ -11,6 +11,8 @@
 
 Adafruit_WF100DPZ wf100dpz;
 
+void printStatus(uint8_t status);
+
 void setup() {
   Serial.begin(115200);
   while (!Serial) {
@@ -32,20 +34,7 @@ void setup() {
 
   // --- Status register ---
   uint8_t status = wf100dpz.getStatus();
-  Serial.print(F("Status: 0x"));
-  Serial.println(status, HEX);
-  Serial.print(F("  DRDY: "));
-  Serial.println((status & 0x01) ? F("yes") : F("no"));
-  Serial.print(F("  VINP short VDD: "));
-  Serial.println((status & 0x80) ? F("yes") : F("no"));
-  Serial.print(F("  VINP short GND: "));
-  Serial.println((status & 0x40) ? F("yes") : F("no"));
-  Serial.print(F("  VINN short VDD: "));
-  Serial.println((status & 0x20) ? F("yes") : F("no"));
-  Serial.print(F("  VINN short GND: "));
-  Serial.println((status & 0x10) ? F("yes") : F("no"));
-  Serial.print(F("  hasError: "));
-  Serial.println(wf100dpz.hasError() ? F("YES") : F("no"));
+  printStatus(status);
 
   // --- Individual pressure reading ---
   Serial.print(F("readPressure: "));
@@ -105,4 +94,21 @@ void loop() {
   }
 
   delay(100);
+}
+
+void printStatus(uint8_t status) {
+  Serial.print(F("Status: 0x"));
+  Serial.println(status, HEX);
+  Serial.print(F("  DRDY:          "));
+  Serial.println((status & WF100DPZ_STATUS_DRDY) ? F("yes") : F("no"));
+  Serial.print(F("  VINP short VDD: "));
+  Serial.println((status & WF100DPZ_STATUS_VINP_VDD) ? F("yes") : F("no"));
+  Serial.print(F("  VINP short GND: "));
+  Serial.println((status & WF100DPZ_STATUS_VINP_GND) ? F("yes") : F("no"));
+  Serial.print(F("  VINN short VDD: "));
+  Serial.println((status & WF100DPZ_STATUS_VINN_VDD) ? F("yes") : F("no"));
+  Serial.print(F("  VINN short GND: "));
+  Serial.println((status & WF100DPZ_STATUS_VINN_GND) ? F("yes") : F("no"));
+  Serial.print(F("  hasError:      "));
+  Serial.println((status & WF100DPZ_STATUS_ERROR_MASK) ? F("YES") : F("no"));
 }

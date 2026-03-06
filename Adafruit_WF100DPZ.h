@@ -85,6 +85,14 @@
 /**@{*/
 /** DRDY bit in status register */
 #define WF100DPZ_STATUS_DRDY 0x01
+/** VINN short to GND error */
+#define WF100DPZ_STATUS_VINN_GND 0x10
+/** VINN short to VDD error */
+#define WF100DPZ_STATUS_VINN_VDD 0x20
+/** VINP short to GND error */
+#define WF100DPZ_STATUS_VINP_GND 0x40
+/** VINP short to VDD error */
+#define WF100DPZ_STATUS_VINP_VDD 0x80
 /** Error flag mask (bits 7:4) */
 #define WF100DPZ_STATUS_ERROR_MASK 0xF0
 /**@}*/
