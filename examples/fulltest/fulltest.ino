@@ -117,13 +117,15 @@ void setup() {
 }
 
 void loop() {
-  // Check for errors first
+  wf100dpz.triggerConversion();
+  wf100dpz.waitDRDY();
+
+  // Check for errors
   uint8_t status = wf100dpz.getStatus();
   if (status & WF100DPZ_STATUS_ERROR_MASK) {
     printStatus(status);
   }
 
-  // readTempPressure triggers conversion and waits for DRDY internally
   float pressure, temperature;
   if (wf100dpz.readTempPressure(&pressure, &temperature)) {
     Serial.print(F("T: "));

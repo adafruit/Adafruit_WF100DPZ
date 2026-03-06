@@ -153,6 +153,9 @@ class Adafruit_WF100DPZ {
   bool setSleepInterval(wf100dpz_sleep_t interval);
   wf100dpz_sleep_t getSleepInterval();
 
+  bool triggerConversion(wf100dpz_mode_t mode = WF100DPZ_MODE_COMBINED);
+  bool waitDRDY(uint16_t timeout_ms = 15);
+
   bool setSleepMode(wf100dpz_sleep_t interval);
   bool stopSleepMode();
   bool softReset();
@@ -160,8 +163,6 @@ class Adafruit_WF100DPZ {
  private:
   Adafruit_I2CDevice* _i2c_dev;
 
-  bool _waitDRDY(uint16_t timeout_ms = 15);
-  bool _triggerConversion(wf100dpz_mode_t mode);
   bool _readRawPressure(int32_t* raw);
   bool _readRawTemperature(int8_t* raw_msb, uint8_t* raw_lsb);
 };

@@ -32,6 +32,9 @@ void setup() {
 }
 
 void loop() {
+  wf100dpz.triggerConversion();
+  wf100dpz.waitDRDY();
+
   float pressure, temperature;
 
   if (wf100dpz.readTempPressure(&pressure, &temperature)) {

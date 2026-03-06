@@ -173,7 +173,7 @@ bool Adafruit_WF100DPZ::softReset() {
  * @return true if DRDY became set within timeout
  * @return false if timeout expired
  */
-bool Adafruit_WF100DPZ::_waitDRDY(uint16_t timeout_ms) {
+bool Adafruit_WF100DPZ::waitDRDY(uint16_t timeout_ms) {
   uint32_t start = millis();
 
   Adafruit_BusIO_Register status_reg =
@@ -196,7 +196,7 @@ bool Adafruit_WF100DPZ::_waitDRDY(uint16_t timeout_ms) {
  * @return true if command was written successfully
  * @return false if write failed
  */
-bool Adafruit_WF100DPZ::_triggerConversion(wf100dpz_mode_t mode) {
+bool Adafruit_WF100DPZ::triggerConversion(wf100dpz_mode_t mode) {
   Adafruit_BusIO_Register cmd_reg =
       Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
   Adafruit_BusIO_RegisterBits mode_bits =
@@ -264,15 +264,10 @@ bool Adafruit_WF100DPZ::_readRawTemperature(int8_t* raw_msb, uint8_t* raw_lsb) {
 /**
  * @brief Read pressure from the sensor
  * @return Pressure in kPa, or NaN if read failed
+ * @note Call triggerConversion() + waitDRDY() first in single-shot mode.
+ *       In periodic sleep mode, data is always available.
  */
 float Adafruit_WF100DPZ::readPressure() {
-  if (!_triggerConversion(WF100DPZ_MODE_COMBINED)) {
-    return NAN;
-  }
-  if (!_waitDRDY()) {
-    return NAN;
-  }
-
   int32_t raw;
   if (!_readRawPressure(&raw)) {
     return NAN;
@@ -285,15 +280,10 @@ float Adafruit_WF100DPZ::readPressure() {
 /**
  * @brief Read temperature from the sensor
  * @return Temperature in °C, or NaN if read failed
+ * @note Call triggerConversion() + waitDRDY() first in single-shot mode.
+ *       In periodic sleep mode, data is always available.
  */
 float Adafruit_WF100DPZ::readTemperature() {
-  if (!_triggerConversion(WF100DPZ_MODE_COMBINED)) {
-    return NAN;
-  }
-  if (!_waitDRDY()) {
-    return NAN;
-  }
-
   int8_t raw_msb;
   uint8_t raw_lsb;
   if (!_readRawTemperature(&raw_msb, &raw_lsb)) {
@@ -305,20 +295,15 @@ float Adafruit_WF100DPZ::readTemperature() {
 }
 
 /**
- * @brief Read both temperature and pressure in a single conversion
+ * @brief Read both temperature and pressure from the sensor
  * @param pressure Pointer to store pressure in kPa
  * @param temperature Pointer to store temperature in °C
  * @return true if both readings successful
- * @return false if conversion or read failed
+ * @return false if read failed
+ * @note Call triggerConversion() + waitDRDY() first in single-shot mode.
+ *       In periodic sleep mode, data is always available.
  */
 bool Adafruit_WF100DPZ::readTempPressure(float* pressure, float* temperature) {
-  if (!_triggerConversion(WF100DPZ_MODE_COMBINED)) {
-    return false;
-  }
-  if (!_waitDRDY()) {
-    return false;
-  }
-
   int32_t raw_pressure;
   if (!_readRawPressure(&raw_pressure)) {
     return false;
