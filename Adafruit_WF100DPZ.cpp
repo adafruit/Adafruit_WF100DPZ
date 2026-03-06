@@ -111,10 +111,9 @@ bool Adafruit_WF100DPZ::hasError() {
 bool Adafruit_WF100DPZ::setMeasurementMode(wf100dpz_mode_t mode) {
   Adafruit_BusIO_Register cmd_reg =
       Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
-  uint8_t current = cmd_reg.read();
-  // Preserve sleep_time [7:4] and Sco [3], replace mode [2:0]
-  uint8_t val = (current & 0xF8) | ((uint8_t)mode & 0x07);
-  return cmd_reg.write(val);
+  Adafruit_BusIO_RegisterBits mode_bits =
+      Adafruit_BusIO_RegisterBits(&cmd_reg, 3, 0); // bits [2:0]
+  return mode_bits.write((uint8_t)mode);
 }
 
 /**
@@ -124,7 +123,9 @@ bool Adafruit_WF100DPZ::setMeasurementMode(wf100dpz_mode_t mode) {
 wf100dpz_mode_t Adafruit_WF100DPZ::getMeasurementMode() {
   Adafruit_BusIO_Register cmd_reg =
       Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
-  return (wf100dpz_mode_t)(cmd_reg.read() & 0x07);
+  Adafruit_BusIO_RegisterBits mode_bits =
+      Adafruit_BusIO_RegisterBits(&cmd_reg, 3, 0); // bits [2:0]
+  return (wf100dpz_mode_t)mode_bits.read();
 }
 
 /**
@@ -136,10 +137,9 @@ wf100dpz_mode_t Adafruit_WF100DPZ::getMeasurementMode() {
 bool Adafruit_WF100DPZ::setSleepInterval(wf100dpz_sleep_t interval) {
   Adafruit_BusIO_Register cmd_reg =
       Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
-  uint8_t current = cmd_reg.read();
-  // Preserve Sco [3] and mode [2:0], replace sleep_time [7:4]
-  uint8_t val = (((uint8_t)interval & 0x0F) << 4) | (current & 0x0F);
-  return cmd_reg.write(val);
+  Adafruit_BusIO_RegisterBits sleep_bits =
+      Adafruit_BusIO_RegisterBits(&cmd_reg, 4, 4); // bits [7:4]
+  return sleep_bits.write((uint8_t)interval);
 }
 
 /**
@@ -149,7 +149,9 @@ bool Adafruit_WF100DPZ::setSleepInterval(wf100dpz_sleep_t interval) {
 wf100dpz_sleep_t Adafruit_WF100DPZ::getSleepInterval() {
   Adafruit_BusIO_Register cmd_reg =
       Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
-  return (wf100dpz_sleep_t)((cmd_reg.read() >> 4) & 0x0F);
+  Adafruit_BusIO_RegisterBits sleep_bits =
+      Adafruit_BusIO_RegisterBits(&cmd_reg, 4, 4); // bits [7:4]
+  return (wf100dpz_sleep_t)sleep_bits.read();
 }
 
 /**
