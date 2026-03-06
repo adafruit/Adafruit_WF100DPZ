@@ -108,6 +108,28 @@ typedef enum {
 } wf100dpz_mode_t;
 
 /**
+ * @brief Sleep interval enumeration for periodic mode
+ */
+typedef enum {
+  WF100DPZ_SLEEP_0MS = 0,    /**< 0 ms (continuous) */
+  WF100DPZ_SLEEP_62MS = 1,   /**< 62.5 ms */
+  WF100DPZ_SLEEP_125MS = 2,  /**< 125 ms */
+  WF100DPZ_SLEEP_187MS = 3,  /**< 187.5 ms */
+  WF100DPZ_SLEEP_250MS = 4,  /**< 250 ms */
+  WF100DPZ_SLEEP_312MS = 5,  /**< 312.5 ms */
+  WF100DPZ_SLEEP_375MS = 6,  /**< 375 ms */
+  WF100DPZ_SLEEP_437MS = 7,  /**< 437.5 ms */
+  WF100DPZ_SLEEP_500MS = 8,  /**< 500 ms */
+  WF100DPZ_SLEEP_562MS = 9,  /**< 562.5 ms */
+  WF100DPZ_SLEEP_625MS = 10, /**< 625 ms */
+  WF100DPZ_SLEEP_687MS = 11, /**< 687.5 ms */
+  WF100DPZ_SLEEP_750MS = 12, /**< 750 ms */
+  WF100DPZ_SLEEP_812MS = 13, /**< 812.5 ms */
+  WF100DPZ_SLEEP_875MS = 14, /**< 875 ms */
+  WF100DPZ_SLEEP_1000MS = 15 /**< 1000 ms */
+} wf100dpz_sleep_t;
+
+/**
  * @brief Class for interfacing with the WF100DPZ pressure sensor
  */
 class Adafruit_WF100DPZ {
@@ -125,7 +147,13 @@ class Adafruit_WF100DPZ {
   uint8_t getStatus();
   bool hasError();
 
-  bool setSleepMode(uint8_t interval);
+  bool setMeasurementMode(wf100dpz_mode_t mode);
+  wf100dpz_mode_t getMeasurementMode();
+
+  bool setSleepInterval(wf100dpz_sleep_t interval);
+  wf100dpz_sleep_t getSleepInterval();
+
+  bool setSleepMode(wf100dpz_sleep_t interval);
   bool stopSleepMode();
   bool softReset();
 
@@ -133,7 +161,7 @@ class Adafruit_WF100DPZ {
   Adafruit_I2CDevice* _i2c_dev;
 
   bool _waitDRDY(uint16_t timeout_ms = 15);
-  bool _triggerCombined();
+  bool _triggerConversion(wf100dpz_mode_t mode);
   bool _readRawPressure(int32_t* raw);
   bool _readRawTemperature(int8_t* raw_msb, uint8_t* raw_lsb);
 };

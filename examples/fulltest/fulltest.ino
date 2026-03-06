@@ -1,9 +1,10 @@
 /*!
  * @file fulltest.ino
  *
- * Full example for the WF100DPZ pressure sensor.
- * Displays sensor info, shows every measurement mode
- * and sleep interval setting, then loops with readings.
+ * Full test sketch for WF100DPZ Pressure and Temperature Sensor
+ *
+ * Limor 'ladyada' Fried with assistance from Claude Code
+ * MIT License
  */
 
 #include <Adafruit_WF100DPZ.h>
@@ -15,103 +16,126 @@ void printStatus(uint8_t status);
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial) {
-    delay(10);
-  }
 
-  Serial.println(F("WF100DPZ Full Test"));
-  Serial.println(F("=================="));
+  while (!Serial)
+    delay(10);
+
+  Serial.println(F("WF100DPZ Pressure and Temperature Sensor Test"));
 
   if (!wf100dpz.begin()) {
-    Serial.println(F("Failed to find WF100DPZ sensor!"));
-    while (1) {
+    Serial.println(F("Failed to find WF100DPZ chip"));
+    while (1)
       delay(10);
-    }
   }
+
+  Serial.println(F("WF100DPZ found!"));
 
   Serial.print(F("Part ID: 0x"));
   Serial.println(wf100dpz.getPartID(), HEX);
 
-  // --- Status register flags ---
   uint8_t status = wf100dpz.getStatus();
   printStatus(status);
 
-  // --- Measurement modes ---
-  Serial.println(F("\n--- Measurement Modes ---"));
+  // --- Measurement mode ---
+  wf100dpz.setMeasurementMode(WF100DPZ_MODE_COMBINED);
+  Serial.print(F("Measurement mode: "));
+  wf100dpz_mode_t mode = wf100dpz.getMeasurementMode();
+  switch (mode) {
+    case WF100DPZ_MODE_TEMP_ONLY:
+      Serial.println(F("Temperature only"));
+      break;
+    case WF100DPZ_MODE_PRESSURE_ONLY:
+      Serial.println(F("Pressure only"));
+      break;
+    case WF100DPZ_MODE_COMBINED:
+      Serial.println(F("Combined (temp + pressure)"));
+      break;
+    case WF100DPZ_MODE_SLEEP_PERIODIC:
+      Serial.println(F("Sleep periodic"));
+      break;
+    default:
+      Serial.println(F("Unknown"));
+      break;
+  }
 
-  // Temperature only
-  Serial.println(F("WF100DPZ_MODE_TEMP_ONLY:"));
-  float temp = wf100dpz.readTemperature();
-  Serial.print(F("  Temperature: "));
-  Serial.print(temp, 2);
-  Serial.println(F(" C"));
+  // --- Sleep interval ---
+  wf100dpz.setSleepInterval(WF100DPZ_SLEEP_500MS);
+  Serial.print(F("Sleep interval: "));
+  wf100dpz_sleep_t interval = wf100dpz.getSleepInterval();
+  switch (interval) {
+    case WF100DPZ_SLEEP_0MS:
+      Serial.println(F("0 ms (continuous)"));
+      break;
+    case WF100DPZ_SLEEP_62MS:
+      Serial.println(F("62.5 ms"));
+      break;
+    case WF100DPZ_SLEEP_125MS:
+      Serial.println(F("125 ms"));
+      break;
+    case WF100DPZ_SLEEP_187MS:
+      Serial.println(F("187.5 ms"));
+      break;
+    case WF100DPZ_SLEEP_250MS:
+      Serial.println(F("250 ms"));
+      break;
+    case WF100DPZ_SLEEP_312MS:
+      Serial.println(F("312.5 ms"));
+      break;
+    case WF100DPZ_SLEEP_375MS:
+      Serial.println(F("375 ms"));
+      break;
+    case WF100DPZ_SLEEP_437MS:
+      Serial.println(F("437.5 ms"));
+      break;
+    case WF100DPZ_SLEEP_500MS:
+      Serial.println(F("500 ms"));
+      break;
+    case WF100DPZ_SLEEP_562MS:
+      Serial.println(F("562.5 ms"));
+      break;
+    case WF100DPZ_SLEEP_625MS:
+      Serial.println(F("625 ms"));
+      break;
+    case WF100DPZ_SLEEP_687MS:
+      Serial.println(F("687.5 ms"));
+      break;
+    case WF100DPZ_SLEEP_750MS:
+      Serial.println(F("750 ms"));
+      break;
+    case WF100DPZ_SLEEP_812MS:
+      Serial.println(F("812.5 ms"));
+      break;
+    case WF100DPZ_SLEEP_875MS:
+      Serial.println(F("875 ms"));
+      break;
+    case WF100DPZ_SLEEP_1000MS:
+      Serial.println(F("1000 ms"));
+      break;
+    default:
+      Serial.println(F("Unknown"));
+      break;
+  }
 
-  // Pressure only
-  Serial.println(F("WF100DPZ_MODE_PRESSURE_ONLY:"));
-  float pres = wf100dpz.readPressure();
-  Serial.print(F("  Pressure: "));
-  Serial.print(pres, 2);
-  Serial.println(F(" kPa"));
-
-  // Combined (recommended)
-  Serial.println(F("WF100DPZ_MODE_COMBINED:"));
+  // --- Sleep mode demo ---
+  wf100dpz.setSleepMode(WF100DPZ_SLEEP_125MS);
+  Serial.println(F("Sleep mode started at 125 ms interval"));
+  delay(200);
   float pressure, temperature;
   if (wf100dpz.readTempPressure(&pressure, &temperature)) {
-    Serial.print(F("  Temperature: "));
+    Serial.print(F("  Periodic read: T="));
     Serial.print(temperature, 2);
-    Serial.print(F(" C, Pressure: "));
+    Serial.print(F(" C, P="));
     Serial.print(pressure, 2);
     Serial.println(F(" kPa"));
   }
-
-  // --- Sleep mode intervals ---
-  Serial.println(F("\n--- Sleep Mode Intervals ---"));
-  Serial.println(F("Code  Interval"));
-  Serial.println(F("0     0 ms"));
-  Serial.println(F("1     62.5 ms"));
-  Serial.println(F("2     125 ms"));
-  Serial.println(F("3     187.5 ms"));
-  Serial.println(F("4     250 ms"));
-  Serial.println(F("5     312.5 ms"));
-  Serial.println(F("6     375 ms"));
-  Serial.println(F("7     437.5 ms"));
-  Serial.println(F("8     500 ms"));
-  Serial.println(F("9     562.5 ms"));
-  Serial.println(F("10    625 ms"));
-  Serial.println(F("11    687.5 ms"));
-  Serial.println(F("12    750 ms"));
-  Serial.println(F("13    812.5 ms"));
-  Serial.println(F("14    875 ms"));
-  Serial.println(F("15    1000 ms"));
-
-  // Demo periodic mode at a few intervals
-  uint8_t test_intervals[] = {1, 4, 8, 15};
-  for (uint8_t i = 0; i < 4; i++) {
-    uint8_t iv = test_intervals[i];
-    Serial.print(F("\nWF100DPZ_MODE_SLEEP_PERIODIC interval="));
-    Serial.print(iv);
-    Serial.println(F(":"));
-    wf100dpz.setSleepMode(iv);
-    delay(iv * 63 + 100); // wait for at least one conversion
-    if (wf100dpz.readTempPressure(&pressure, &temperature)) {
-      Serial.print(F("  T: "));
-      Serial.print(temperature, 2);
-      Serial.print(F(" C  P: "));
-      Serial.print(pressure, 2);
-      Serial.println(F(" kPa"));
-    }
-    wf100dpz.stopSleepMode();
-  }
+  wf100dpz.stopSleepMode();
+  Serial.println(F("Sleep mode stopped"));
 
   // --- Soft reset ---
-  Serial.println(F("\n--- Soft Reset ---"));
   wf100dpz.softReset();
   delay(10);
   Serial.print(F("Part ID after reset: 0x"));
   Serial.println(wf100dpz.getPartID(), HEX);
-
-  Serial.println();
-  Serial.println(F("Continuous readings..."));
 }
 
 void loop() {

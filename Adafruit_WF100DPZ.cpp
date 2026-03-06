@@ -102,6 +102,57 @@ bool Adafruit_WF100DPZ::hasError() {
 }
 
 /**
+ * @brief Set the measurement mode
+ * @param mode Measurement mode (TEMP_ONLY, PRESSURE_ONLY, COMBINED,
+ *             SLEEP_PERIODIC)
+ * @return true if write succeeded
+ * @return false if write failed
+ */
+bool Adafruit_WF100DPZ::setMeasurementMode(wf100dpz_mode_t mode) {
+  Adafruit_BusIO_Register cmd_reg =
+      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
+  uint8_t current = cmd_reg.read();
+  // Preserve sleep_time [7:4] and Sco [3], replace mode [2:0]
+  uint8_t val = (current & 0xF8) | ((uint8_t)mode & 0x07);
+  return cmd_reg.write(val);
+}
+
+/**
+ * @brief Get the current measurement mode
+ * @return Current measurement mode
+ */
+wf100dpz_mode_t Adafruit_WF100DPZ::getMeasurementMode() {
+  Adafruit_BusIO_Register cmd_reg =
+      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
+  return (wf100dpz_mode_t)(cmd_reg.read() & 0x07);
+}
+
+/**
+ * @brief Set the sleep interval for periodic mode
+ * @param interval Sleep interval enum value
+ * @return true if write succeeded
+ * @return false if write failed
+ */
+bool Adafruit_WF100DPZ::setSleepInterval(wf100dpz_sleep_t interval) {
+  Adafruit_BusIO_Register cmd_reg =
+      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
+  uint8_t current = cmd_reg.read();
+  // Preserve Sco [3] and mode [2:0], replace sleep_time [7:4]
+  uint8_t val = (((uint8_t)interval & 0x0F) << 4) | (current & 0x0F);
+  return cmd_reg.write(val);
+}
+
+/**
+ * @brief Get the current sleep interval setting
+ * @return Current sleep interval enum value
+ */
+wf100dpz_sleep_t Adafruit_WF100DPZ::getSleepInterval() {
+  Adafruit_BusIO_Register cmd_reg =
+      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
+  return (wf100dpz_sleep_t)((cmd_reg.read() >> 4) & 0x0F);
+}
+
+/**
  * @brief Perform a soft reset of the sensor
  * @return true if reset command was written successfully
  * @return false if write failed
@@ -136,14 +187,16 @@ bool Adafruit_WF100DPZ::_waitDRDY(uint16_t timeout_ms) {
 }
 
 /**
- * @brief Trigger a combined temperature + pressure conversion
+ * @brief Trigger a conversion in the specified mode
+ * @param mode Measurement mode to trigger
  * @return true if command was written successfully
  * @return false if write failed
  */
-bool Adafruit_WF100DPZ::_triggerCombined() {
+bool Adafruit_WF100DPZ::_triggerConversion(wf100dpz_mode_t mode) {
   Adafruit_BusIO_Register cmd_reg =
       Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
-  return cmd_reg.write(WF100DPZ_CMD_COMBINED);
+  // Sco=1 (bit 3) | mode in [2:0]
+  return cmd_reg.write(0x08 | ((uint8_t)mode & 0x07));
 }
 
 /**
@@ -203,7 +256,7 @@ bool Adafruit_WF100DPZ::_readRawTemperature(int8_t* raw_msb, uint8_t* raw_lsb) {
  * @return Pressure in kPa, or NaN if read failed
  */
 float Adafruit_WF100DPZ::readPressure() {
-  if (!_triggerCombined()) {
+  if (!_triggerConversion(WF100DPZ_MODE_COMBINED)) {
     return NAN;
   }
   if (!_waitDRDY()) {
@@ -224,7 +277,7 @@ float Adafruit_WF100DPZ::readPressure() {
  * @return Temperature in °C, or NaN if read failed
  */
 float Adafruit_WF100DPZ::readTemperature() {
-  if (!_triggerCombined()) {
+  if (!_triggerConversion(WF100DPZ_MODE_COMBINED)) {
     return NAN;
   }
   if (!_waitDRDY()) {
@@ -249,7 +302,7 @@ float Adafruit_WF100DPZ::readTemperature() {
  * @return false if conversion or read failed
  */
 bool Adafruit_WF100DPZ::readTempPressure(float* pressure, float* temperature) {
-  if (!_triggerCombined()) {
+  if (!_triggerConversion(WF100DPZ_MODE_COMBINED)) {
     return false;
   }
   if (!_waitDRDY()) {
@@ -278,20 +331,16 @@ bool Adafruit_WF100DPZ::readTempPressure(float* pressure, float* temperature) {
 
 /**
  * @brief Enable sleep mode with periodic conversions
- * @param interval Sleep time code (0-15, interval x ~62.5 ms)
+ * @param interval Sleep interval enum value
  * @return true if command was written successfully
  * @return false if write failed
  */
-bool Adafruit_WF100DPZ::setSleepMode(uint8_t interval) {
-  if (interval > 0x0F) {
-    interval = 0x0F;
-  }
-
-  // Sleep_time in upper nibble, Sco=1, Mode=SLEEP_PERIODIC (0x03)
-  uint8_t cmd = (interval << 4) | 0x08 | WF100DPZ_MODE_SLEEP_PERIODIC;
-
+bool Adafruit_WF100DPZ::setSleepMode(wf100dpz_sleep_t interval) {
   Adafruit_BusIO_Register cmd_reg =
       Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
+  // Sleep_time in upper nibble, Sco=1, Mode=SLEEP_PERIODIC (0x03)
+  uint8_t cmd =
+      (((uint8_t)interval & 0x0F) << 4) | 0x08 | WF100DPZ_MODE_SLEEP_PERIODIC;
   return cmd_reg.write(cmd);
 }
 
