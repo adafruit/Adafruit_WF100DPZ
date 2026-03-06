@@ -2,8 +2,8 @@
  * @file fulltest.ino
  *
  * Full example for the WF100DPZ pressure sensor.
- * Demonstrates all library features: single readings,
- * combined readings, status checks, and sleep mode.
+ * Displays sensor info, exercises all API methods, then
+ * loops with continuous combined readings.
  */
 
 #include <Adafruit_WF100DPZ.h>
@@ -29,93 +29,80 @@ void setup() {
 
   Serial.print(F("Part ID: 0x"));
   Serial.println(wf100dpz.getPartID(), HEX);
-  Serial.println(F("WF100DPZ Found!"));
-  Serial.println();
 
-  // --- Individual readings ---
-  Serial.println(F("--- Individual Readings ---"));
-
-  float pressure = wf100dpz.readPressure();
-  Serial.print(F("Pressure: "));
-  Serial.print(pressure, 2);
-  Serial.println(F(" kPa"));
-
-  float temperature = wf100dpz.readTemperature();
-  Serial.print(F("Temperature: "));
-  Serial.print(temperature, 2);
-  Serial.println(F(" C"));
-  Serial.println();
-
-  // --- Combined reading ---
-  Serial.println(F("--- Combined Reading ---"));
-
-  if (wf100dpz.readTempPressure(&pressure, &temperature)) {
-    Serial.print(F("Temperature: "));
-    Serial.print(temperature, 2);
-    Serial.print(F(" C, Pressure: "));
-    Serial.print(pressure, 2);
-    Serial.println(F(" kPa"));
-  } else {
-    Serial.println(F("Combined read failed!"));
-  }
-  Serial.println();
-
-  // --- Status check ---
-  Serial.println(F("--- Status Check ---"));
+  // --- Status register ---
   uint8_t status = wf100dpz.getStatus();
   Serial.print(F("Status: 0x"));
   Serial.println(status, HEX);
-  Serial.print(F("Errors: "));
-  Serial.println(wf100dpz.hasError() ? F("YES") : F("none"));
-  Serial.println();
+  Serial.print(F("  DRDY: "));
+  Serial.println((status & 0x01) ? F("yes") : F("no"));
+  Serial.print(F("  VINP short VDD: "));
+  Serial.println((status & 0x80) ? F("yes") : F("no"));
+  Serial.print(F("  VINP short GND: "));
+  Serial.println((status & 0x40) ? F("yes") : F("no"));
+  Serial.print(F("  VINN short VDD: "));
+  Serial.println((status & 0x20) ? F("yes") : F("no"));
+  Serial.print(F("  VINN short GND: "));
+  Serial.println((status & 0x10) ? F("yes") : F("no"));
+  Serial.print(F("  hasError: "));
+  Serial.println(wf100dpz.hasError() ? F("YES") : F("no"));
 
-  // --- Sleep mode demo ---
-  Serial.println(F("--- Sleep Mode (interval=2, ~125ms) ---"));
-  Serial.println(F("Reading 5 periodic conversions..."));
+  // --- Individual pressure reading ---
+  Serial.print(F("readPressure: "));
+  Serial.print(wf100dpz.readPressure(), 2);
+  Serial.println(F(" kPa"));
 
-  if (wf100dpz.setSleepMode(2)) {
-    for (int i = 0; i < 5; i++) {
-      delay(200); // wait for periodic conversion
-      if (wf100dpz.readTempPressure(&pressure, &temperature)) {
-        Serial.print(i + 1);
-        Serial.print(F(": T="));
-        Serial.print(temperature, 2);
-        Serial.print(F(" C, P="));
-        Serial.print(pressure, 2);
-        Serial.println(F(" kPa"));
-      }
-    }
-    wf100dpz.stopSleepMode();
-    Serial.println(F("Sleep mode stopped."));
-  } else {
-    Serial.println(F("Failed to enter sleep mode!"));
+  // --- Individual temperature reading ---
+  Serial.print(F("readTemperature: "));
+  Serial.print(wf100dpz.readTemperature(), 2);
+  Serial.println(F(" C"));
+
+  // --- Combined reading ---
+  float pressure, temperature;
+  if (wf100dpz.readTempPressure(&pressure, &temperature)) {
+    Serial.print(F("readTempPressure: "));
+    Serial.print(temperature, 2);
+    Serial.print(F(" C, "));
+    Serial.print(pressure, 2);
+    Serial.println(F(" kPa"));
   }
-  Serial.println();
+
+  // --- Sleep mode ---
+  Serial.println(F("setSleepMode(2): "));
+  Serial.println(wf100dpz.setSleepMode(2) ? F("  OK") : F("  FAIL"));
+  delay(200);
+  if (wf100dpz.readTempPressure(&pressure, &temperature)) {
+    Serial.print(F("  periodic read: "));
+    Serial.print(temperature, 2);
+    Serial.print(F(" C, "));
+    Serial.print(pressure, 2);
+    Serial.println(F(" kPa"));
+  }
+  Serial.println(wf100dpz.stopSleepMode() ? F("  stopped") : F("  stop FAIL"));
 
   // --- Soft reset ---
-  Serial.println(F("--- Soft Reset ---"));
+  Serial.print(F("softReset: "));
   wf100dpz.softReset();
   delay(10);
-  Serial.print(F("Part ID after reset: 0x"));
+  Serial.print(F("Part ID after: 0x"));
   Serial.println(wf100dpz.getPartID(), HEX);
-  Serial.println();
 
-  Serial.println(F("Setup complete. Continuous readings in loop..."));
   Serial.println();
+  Serial.println(F("Continuous readings..."));
 }
 
 void loop() {
   float pressure, temperature;
 
   if (wf100dpz.readTempPressure(&pressure, &temperature)) {
-    Serial.print(F("T="));
+    Serial.print(F("T: "));
     Serial.print(temperature, 2);
-    Serial.print(F(" C  P="));
+    Serial.print(F(" C  P: "));
     Serial.print(pressure, 2);
     Serial.println(F(" kPa"));
   } else {
     Serial.println(F("Read failed!"));
   }
 
-  delay(1000);
+  delay(100);
 }
