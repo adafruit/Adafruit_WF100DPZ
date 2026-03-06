@@ -12,7 +12,6 @@
  */
 
 #include <Adafruit_WF100DPZ.h>
-#include <Wire.h>
 
 #define NUM_READINGS 5
 #define TEMP_MIN 15.0
@@ -29,8 +28,6 @@ void setup() {
 
   Serial.println(F("=== hw_test_06_combined ==="));
   Serial.println(F("Testing: Combined readTempPressure() (5 samples)"));
-
-  Wire.begin();
 
   bool allPass = true;
 

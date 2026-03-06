@@ -11,7 +11,6 @@
  */
 
 #include <Adafruit_WF100DPZ.h>
-#include <Wire.h>
 
 Adafruit_WF100DPZ sensor;
 
@@ -22,8 +21,6 @@ void setup() {
 
   Serial.println(F("=== hw_test_07_status ==="));
   Serial.println(F("Testing: Status register and error flags"));
-
-  Wire.begin();
 
   bool allPass = true;
 

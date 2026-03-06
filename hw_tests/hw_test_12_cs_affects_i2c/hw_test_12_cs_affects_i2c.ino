@@ -50,7 +50,6 @@ void setup() {
   // Test 1: I2C with CS floating
   Serial.print(F("1. I2C with CS floating (INPUT): "));
   pinMode(CS_PIN, INPUT);
-  Wire.begin();
   delay(10);
   if (i2cReadPartID(&id) && id == EXPECTED_PART_ID) {
     Serial.println(F("OK (0x49)"));

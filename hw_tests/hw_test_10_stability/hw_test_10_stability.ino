@@ -11,7 +11,6 @@
  */
 
 #include <Adafruit_WF100DPZ.h>
-#include <Wire.h>
 #include <math.h>
 
 #define NUM_READINGS 20
@@ -26,8 +25,6 @@ void setup() {
 
   Serial.println(F("=== hw_test_10_stability ==="));
   Serial.println(F("Testing: Pressure reading stability (20 samples)"));
-
-  Wire.begin();
 
   bool allPass = true;
 

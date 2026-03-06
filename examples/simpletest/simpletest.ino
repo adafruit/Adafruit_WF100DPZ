@@ -6,7 +6,6 @@
  */
 
 #include <Adafruit_WF100DPZ.h>
-#include <Wire.h>
 
 Adafruit_WF100DPZ wf100dpz;
 

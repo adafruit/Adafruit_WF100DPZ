@@ -9,7 +9,6 @@
  */
 
 #include <Adafruit_WF100DPZ.h>
-#include <Wire.h>
 
 Adafruit_WF100DPZ sensor;
 
@@ -20,8 +19,6 @@ void setup() {
 
   Serial.println(F("=== hw_test_02_part_id ==="));
   Serial.println(F("Testing: Library begin() and Part ID verification"));
-
-  Wire.begin();
 
   bool allPass = true;
 

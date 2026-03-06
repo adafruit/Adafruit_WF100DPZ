@@ -11,7 +11,6 @@
  */
 
 #include <Adafruit_WF100DPZ.h>
-#include <Wire.h>
 
 #define WF100DPZ_REG_CMD 0x30
 
@@ -32,8 +31,6 @@ void setup() {
 
   Serial.println(F("=== hw_test_03_soft_reset ==="));
   Serial.println(F("Testing: Soft reset functionality"));
-
-  Wire.begin();
 
   bool allPass = true;
 

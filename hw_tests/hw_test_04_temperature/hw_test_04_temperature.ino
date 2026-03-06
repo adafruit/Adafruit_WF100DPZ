@@ -11,7 +11,6 @@
  */
 
 #include <Adafruit_WF100DPZ.h>
-#include <Wire.h>
 
 #define NUM_READINGS 5
 #define TEMP_MIN 15.0
@@ -27,8 +26,6 @@ void setup() {
 
   Serial.println(F("=== hw_test_04_temperature ==="));
   Serial.println(F("Testing: Temperature readings (5 samples)"));
-
-  Wire.begin();
 
   bool allPass = true;
 

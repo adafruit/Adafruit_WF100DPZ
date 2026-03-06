@@ -11,7 +11,6 @@
  */
 
 #include <Adafruit_WF100DPZ.h>
-#include <Wire.h>
 
 #define WF100DPZ_REG_CMD 0x30
 #define WF100DPZ_REG_STATUS 0x02
@@ -42,8 +41,6 @@ void setup() {
 
   Serial.println(F("=== hw_test_09_conversion_timing ==="));
   Serial.println(F("Testing: Conversion timing measurement"));
-
-  Wire.begin();
 
   bool allPass = true;
 

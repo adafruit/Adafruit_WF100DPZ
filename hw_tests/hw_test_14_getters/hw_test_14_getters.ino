@@ -9,7 +9,6 @@
  */
 
 #include <Adafruit_WF100DPZ.h>
-#include <Wire.h>
 
 Adafruit_WF100DPZ sensor;
 
@@ -54,8 +53,6 @@ void setup() {
 
   Serial.println(F("=== hw_test_14_getters ==="));
   Serial.println(F("Testing: Getter/setter roundtrip"));
-
-  Wire.begin();
 
   if (!sensor.begin()) {
     Serial.println(F("FAIL - begin() returned false"));

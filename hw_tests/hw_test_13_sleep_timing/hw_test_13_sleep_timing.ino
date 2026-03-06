@@ -81,8 +81,6 @@ void setup() {
   Serial.println(F("=== hw_test_13_sleep_timing ==="));
   Serial.println(F("Testing: Sleep mode periodic conversion timing"));
 
-  Wire.begin();
-
   if (!sensor.begin()) {
     Serial.println(F("FAIL - begin() returned false"));
     while (1)
