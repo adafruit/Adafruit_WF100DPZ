@@ -199,8 +199,14 @@ bool Adafruit_WF100DPZ::_waitDRDY(uint16_t timeout_ms) {
 bool Adafruit_WF100DPZ::_triggerConversion(wf100dpz_mode_t mode) {
   Adafruit_BusIO_Register cmd_reg =
       Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_CMD, 1);
-  // Sco=1 (bit 3) | mode in [2:0]
-  return cmd_reg.write(0x08 | ((uint8_t)mode & 0x07));
+  Adafruit_BusIO_RegisterBits mode_bits =
+      Adafruit_BusIO_RegisterBits(&cmd_reg, 3, 0); // bits [2:0]
+  Adafruit_BusIO_RegisterBits sco_bit =
+      Adafruit_BusIO_RegisterBits(&cmd_reg, 1, 3); // bit [3]
+  if (!mode_bits.write((uint8_t)mode)) {
+    return false;
+  }
+  return sco_bit.write(1);
 }
 
 /**
