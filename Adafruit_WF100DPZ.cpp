@@ -57,15 +57,13 @@ bool Adafruit_WF100DPZ::begin(uint8_t addr, TwoWire* wire) {
     return false;
   }
 
-  // Perform soft reset
-  if (!softReset()) {
-    return false;
-  }
+  // Perform soft reset — sensor NACKs during reset, so ignore the result
+  softReset();
 
-  // Small delay after reset
-  delay(5);
+  // Wait for reset to complete
+  delay(10);
 
-  // Verify Part_ID
+  // Verify Part_ID to confirm sensor is alive and reset succeeded
   uint8_t part_id = getPartID();
   if (part_id != WF100DPZ_PART_ID) {
     return false;
