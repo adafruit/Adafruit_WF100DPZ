@@ -1,4 +1,4 @@
-# Adafruit WF100DPZ [![Build Status](https://github.com/adafruit/Adafruit_WF100DPZ/workflows/Arduino%20Library%20CI/badge.svg)](https://github.com/adafruit/Adafruit_WF100DPZ/actions) [![Documentation](https://github.com/adafruit/Adafruit_WF100DPZ/workflows/Build%20Documentation/badge.svg)](https://adafruit.github.io/Adafruit_WF100DPZ/html/index.html)
+# Adafruit WF100DPZ [![Arduino Library CI](https://github.com/adafruit/Adafruit_WF100DPZ/workflows/Arduino%20Library%20CI/badge.svg)](https://github.com/adafruit/Adafruit_WF100DPZ/actions)
 
 Arduino library for the WF100DPZ low-cost MEMS gauge pressure sensor with integrated temperature output.
 
