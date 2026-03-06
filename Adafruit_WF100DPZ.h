@@ -162,9 +162,6 @@ class Adafruit_WF100DPZ {
 
  private:
   Adafruit_I2CDevice* _i2c_dev;
-
-  bool _readRawPressure(int32_t* raw);
-  bool _readRawTemperature(int8_t* raw_msb, uint8_t* raw_lsb);
 };
 
 #endif // ADAFRUIT_WF100DPZ_H

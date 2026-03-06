@@ -210,68 +210,23 @@ bool Adafruit_WF100DPZ::triggerConversion(wf100dpz_mode_t mode) {
 }
 
 /**
- * @brief Read raw 24-bit pressure value
- * @param raw Pointer to store the signed 24-bit value
- * @return true if read successful
- * @return false if read failed
- */
-bool Adafruit_WF100DPZ::_readRawPressure(int32_t* raw) {
-  uint8_t buffer[3];
-
-  Adafruit_BusIO_Register data_reg =
-      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_DATA_MSB, 3);
-  if (!data_reg.read(buffer, 3)) {
-    return false;
-  }
-
-  // Assemble 24-bit unsigned value (MSB first)
-  uint32_t unsigned_raw =
-      ((uint32_t)buffer[0] << 16) | ((uint32_t)buffer[1] << 8) | buffer[2];
-
-  // Convert to signed 24-bit
-  if (unsigned_raw >= 0x800000) {
-    *raw = (int32_t)unsigned_raw - 0x1000000;
-  } else {
-    *raw = (int32_t)unsigned_raw;
-  }
-
-  return true;
-}
-
-/**
- * @brief Read raw temperature values
- * @param raw_msb Pointer to store the signed MSB
- * @param raw_lsb Pointer to store the unsigned LSB
- * @return true if read successful
- * @return false if read failed
- */
-bool Adafruit_WF100DPZ::_readRawTemperature(int8_t* raw_msb, uint8_t* raw_lsb) {
-  uint8_t buffer[2];
-
-  Adafruit_BusIO_Register temp_reg =
-      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_TEMP_MSB, 2);
-  if (!temp_reg.read(buffer, 2)) {
-    return false;
-  }
-
-  // MSB is signed, LSB is unsigned
-  *raw_msb = (int8_t)buffer[0];
-  *raw_lsb = buffer[1];
-
-  return true;
-}
-
-/**
  * @brief Read pressure from the sensor
  * @return Pressure in kPa, or NaN if read failed
  * @note Call triggerConversion() + waitDRDY() first in single-shot mode.
  *       In periodic sleep mode, data is always available.
  */
 float Adafruit_WF100DPZ::readPressure() {
-  int32_t raw;
-  if (!_readRawPressure(&raw)) {
+  uint8_t buffer[3];
+  Adafruit_BusIO_Register data_reg =
+      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_DATA_MSB, 3);
+  if (!data_reg.read(buffer, 3)) {
     return NAN;
   }
+
+  uint32_t unsigned_raw =
+      ((uint32_t)buffer[0] << 16) | ((uint32_t)buffer[1] << 8) | buffer[2];
+  int32_t raw = (unsigned_raw >= 0x800000) ? (int32_t)unsigned_raw - 0x1000000
+                                           : (int32_t)unsigned_raw;
 
   float normalized = (float)raw / WF100DPZ_PRESSURE_DIV;
   return normalized * WF100DPZ_PRESSURE_SCALE + WF100DPZ_PRESSURE_OFFSET;
@@ -284,14 +239,15 @@ float Adafruit_WF100DPZ::readPressure() {
  *       In periodic sleep mode, data is always available.
  */
 float Adafruit_WF100DPZ::readTemperature() {
-  int8_t raw_msb;
-  uint8_t raw_lsb;
-  if (!_readRawTemperature(&raw_msb, &raw_lsb)) {
+  uint8_t buffer[2];
+  Adafruit_BusIO_Register temp_reg =
+      Adafruit_BusIO_Register(_i2c_dev, WF100DPZ_REG_TEMP_MSB, 2);
+  if (!temp_reg.read(buffer, 2)) {
     return NAN;
   }
 
-  return WF100DPZ_TEMP_OFFSET + (float)raw_msb +
-         (float)raw_lsb * WF100DPZ_TEMP_LSB_SCALE;
+  return WF100DPZ_TEMP_OFFSET + (float)(int8_t)buffer[0] +
+         (float)buffer[1] * WF100DPZ_TEMP_LSB_SCALE;
 }
 
 /**
