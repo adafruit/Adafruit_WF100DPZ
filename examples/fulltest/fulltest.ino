@@ -118,23 +118,22 @@ void setup() {
 }
 
 void loop() {
+  // Check for errors first
   uint8_t status = wf100dpz.getStatus();
-
   if (status & WF100DPZ_STATUS_ERROR_MASK) {
     printStatus(status);
   }
 
-  if (status & WF100DPZ_STATUS_DRDY) {
-    float pressure, temperature;
-    if (wf100dpz.readTempPressure(&pressure, &temperature)) {
-      Serial.print(F("T: "));
-      Serial.print(temperature, 2);
-      Serial.print(F(" C  P: "));
-      Serial.print(pressure, 2);
-      Serial.println(F(" kPa"));
-    } else {
-      Serial.println(F("Read failed!"));
-    }
+  // readTempPressure triggers conversion and waits for DRDY internally
+  float pressure, temperature;
+  if (wf100dpz.readTempPressure(&pressure, &temperature)) {
+    Serial.print(F("T: "));
+    Serial.print(temperature, 2);
+    Serial.print(F(" C  P: "));
+    Serial.print(pressure, 2);
+    Serial.println(F(" kPa"));
+  } else {
+    Serial.println(F("Read failed!"));
   }
 
   delay(100);
