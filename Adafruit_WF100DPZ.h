@@ -75,8 +75,8 @@
 #define WF100DPZ_PRESSURE_OFFSET 25.0
 /** Pressure divisor (2^23) */
 #define WF100DPZ_PRESSURE_DIV 8388608.0
-/** Temperature offset (°C) */
-#define WF100DPZ_TEMP_OFFSET (-1.2)
+/** Temperature offset (°C) - adjust if readings are consistently off */
+#define WF100DPZ_TEMP_OFFSET 0.0
 /** Temperature LSB scale factor */
 #define WF100DPZ_TEMP_LSB_SCALE 0.004
 /**@}*/
