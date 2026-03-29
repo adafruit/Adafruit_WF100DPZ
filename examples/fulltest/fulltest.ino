@@ -29,6 +29,10 @@ void setup() {
 
   Serial.println(F("WF100DPZ found!"));
 
+  Serial.print(F("Detected "));
+  Serial.print(wf100dpz.getMaxPressure(), 0);
+  Serial.println(F(" kPa variant"));
+
   Serial.print(F("Part ID: 0x"));
   Serial.println(wf100dpz.getPartID(), HEX);
 

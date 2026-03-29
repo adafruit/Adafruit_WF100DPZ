@@ -28,6 +28,9 @@
  */
 Adafruit_WF100DPZ::Adafruit_WF100DPZ() {
   _i2c_dev = nullptr;
+  _pressureScale = WF100DPZ_PRESSURE_SCALE;
+  _pressureOffset = WF100DPZ_PRESSURE_OFFSET;
+  _maxPressure = 200.0;
 }
 
 /**
@@ -65,7 +68,15 @@ bool Adafruit_WF100DPZ::begin(uint8_t addr, TwoWire* wire) {
 
   // Verify Part_ID to confirm sensor is alive and reset succeeded
   uint8_t part_id = getPartID();
-  if (part_id != WF100DPZ_PART_ID) {
+  if (part_id == WF100DPZ_PART_ID) {
+    _pressureScale = WF100DPZ_PRESSURE_SCALE;
+    _pressureOffset = WF100DPZ_PRESSURE_OFFSET;
+    _maxPressure = 200.0;
+  } else if (part_id == WF100DPZ_PART_ID_40KPA) {
+    _pressureScale = WF100DPZ_PRESSURE_SCALE_40KPA;
+    _pressureOffset = WF100DPZ_PRESSURE_OFFSET_40KPA;
+    _maxPressure = 40.0;
+  } else {
     return false;
   }
 
@@ -74,7 +85,7 @@ bool Adafruit_WF100DPZ::begin(uint8_t addr, TwoWire* wire) {
 
 /**
  * @brief Read the Part ID from the sensor
- * @return Part ID value (expect 0x49)
+ * @return Part ID value (0x49 for 200 kPa, 0x51 for 40 kPa)
  */
 uint8_t Adafruit_WF100DPZ::getPartID() {
   Adafruit_BusIO_Register part_id_reg =
@@ -99,6 +110,14 @@ uint8_t Adafruit_WF100DPZ::getStatus() {
  */
 bool Adafruit_WF100DPZ::hasError() {
   return (getStatus() & WF100DPZ_STATUS_ERROR_MASK) != 0;
+}
+
+/**
+ * @brief Get the maximum pressure of the detected variant
+ * @return Maximum pressure in kPa
+ */
+float Adafruit_WF100DPZ::getMaxPressure() {
+  return _maxPressure;
 }
 
 /**
@@ -229,7 +248,7 @@ float Adafruit_WF100DPZ::readPressure() {
                                            : (int32_t)unsigned_raw;
 
   float normalized = (float)raw / WF100DPZ_PRESSURE_DIV;
-  return normalized * WF100DPZ_PRESSURE_SCALE + WF100DPZ_PRESSURE_OFFSET;
+  return normalized * _pressureScale + _pressureOffset;
 }
 
 /**

@@ -117,6 +117,9 @@ void setup() {
   }
 
   Serial.println(F("WF100DPZ found!"));
+  Serial.print(F("Detected "));
+  Serial.print(wf100dpz.getMaxPressure(), 0);
+  Serial.println(F(" kPa variant"));
 
   wf100dpz.setSleepMode(WF100DPZ_SLEEP_0MS);
 
