@@ -102,6 +102,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac1ee31db58c113919b18e01da0d7fe71"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___w_f100_d_p_z.html#ac1ee31db58c113919b18e01da0d7fe71">hasError</a> ()</td></tr>
 <tr class="memdesc:ac1ee31db58c113919b18e01da0d7fe71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if any error flags are set.  <a href="#ac1ee31db58c113919b18e01da0d7fe71">More...</a><br /></td></tr>
 <tr class="separator:ac1ee31db58c113919b18e01da0d7fe71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff2addf120231116fca7472463e03356"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___w_f100_d_p_z.html#aff2addf120231116fca7472463e03356">getMaxPressure</a> ()</td></tr>
+<tr class="memdesc:aff2addf120231116fca7472463e03356"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the maximum pressure of the detected variant.  <a href="#aff2addf120231116fca7472463e03356">More...</a><br /></td></tr>
+<tr class="separator:aff2addf120231116fca7472463e03356"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a167016ee68fab7b2f343e0681c3eb80a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___w_f100_d_p_z.html#a167016ee68fab7b2f343e0681c3eb80a">setMeasurementMode</a> (<a class="el" href="_adafruit___w_f100_d_p_z_8h.html#ab29259a8fe09cac1804e1116708c2793">wf100dpz_mode_t</a> mode)</td></tr>
 <tr class="memdesc:a167016ee68fab7b2f343e0681c3eb80a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the measurement mode.  <a href="#a167016ee68fab7b2f343e0681c3eb80a">More...</a><br /></td></tr>
 <tr class="separator:a167016ee68fab7b2f343e0681c3eb80a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -272,7 +275,7 @@ false if read failed </dd></dl>
 </div><div class="memdoc">
 
 <p>Read the Part ID from the sensor. </p>
-<dl class="section return"><dt>Returns</dt><dd>Part ID value (expect 0x49) </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Part ID value (0x49 for 200 kPa, 0x51 for 40 kPa) </dd></dl>
 
 </div>
 </div>
@@ -315,6 +318,26 @@ false if read failed </dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>true if any error flags (bits 7:4) are set </dd>
 <dd>
 false if no errors </dd></dl>
+
+</div>
+</div>
+<a id="aff2addf120231116fca7472463e03356"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff2addf120231116fca7472463e03356">&#9670;&nbsp;</a></span>getMaxPressure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float Adafruit_WF100DPZ::getMaxPressure </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the maximum pressure of the detected variant. </p>
+<dl class="section return"><dt>Returns</dt><dd>Maximum pressure in kPa </dd></dl>
 
 </div>
 </div>

@@ -85,6 +85,8 @@ Macros</h2></td></tr>
 <tr class="separator:a6204a0d15fa0d3d8360c4b46a8f3c1ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a55f25ed9c3b91de7469fd33f21bb637f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___w_f100_d_p_z_8h.html#a55f25ed9c3b91de7469fd33f21bb637f">WF100DPZ_PART_ID</a>&#160;&#160;&#160;0x49</td></tr>
 <tr class="separator:a55f25ed9c3b91de7469fd33f21bb637f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92dda087fa976109480138efd47ce66b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___w_f100_d_p_z_8h.html#a92dda087fa976109480138efd47ce66b">WF100DPZ_PART_ID_40KPA</a>&#160;&#160;&#160;0x51</td></tr>
+<tr class="separator:a92dda087fa976109480138efd47ce66b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Register Addresses</div></td></tr>
 <tr class="memitem:a3baaada396fb28493e70accee3a17b4c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___w_f100_d_p_z_8h.html#a3baaada396fb28493e70accee3a17b4c">WF100DPZ_REG_SPI_CTRL</a>&#160;&#160;&#160;0x00</td></tr>
 <tr class="separator:a3baaada396fb28493e70accee3a17b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -120,6 +122,10 @@ Macros</h2></td></tr>
 <tr class="separator:a0bda7d5bf7e9d53f86796411969652a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8dc637fab58a654a703d8685d2902c94"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___w_f100_d_p_z_8h.html#a8dc637fab58a654a703d8685d2902c94">WF100DPZ_PRESSURE_OFFSET</a>&#160;&#160;&#160;25.0</td></tr>
 <tr class="separator:a8dc637fab58a654a703d8685d2902c94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d9e73c154b06812a259f3a7a582df54"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___w_f100_d_p_z_8h.html#a0d9e73c154b06812a259f3a7a582df54">WF100DPZ_PRESSURE_SCALE_40KPA</a>&#160;&#160;&#160;50.0</td></tr>
+<tr class="separator:a0d9e73c154b06812a259f3a7a582df54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7037853be276bc77781809e58cbc6e80"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___w_f100_d_p_z_8h.html#a7037853be276bc77781809e58cbc6e80">WF100DPZ_PRESSURE_OFFSET_40KPA</a>&#160;&#160;&#160;5.0</td></tr>
+<tr class="separator:a7037853be276bc77781809e58cbc6e80"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad3d3070f099b965104b2dbce5db5a393"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___w_f100_d_p_z_8h.html#ad3d3070f099b965104b2dbce5db5a393">WF100DPZ_PRESSURE_DIV</a>&#160;&#160;&#160;8388608.0</td></tr>
 <tr class="separator:ad3d3070f099b965104b2dbce5db5a393"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9544219584fcf8876b56f8fb37e6fea4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_adafruit___w_f100_d_p_z_8h.html#a9544219584fcf8876b56f8fb37e6fea4">WF100DPZ_TEMP_OFFSET</a>&#160;&#160;&#160;0.0</td></tr>
@@ -208,7 +214,22 @@ Enumerations</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Expected Part ID value from OTP </p>
+<p>Expected Part ID value from OTP (200 kPa variant) </p>
+
+</div>
+</div>
+<a id="a92dda087fa976109480138efd47ce66b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a92dda087fa976109480138efd47ce66b">&#9670;&nbsp;</a></span>WF100DPZ_PART_ID_40KPA</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WF100DPZ_PART_ID_40KPA&#160;&#160;&#160;0x51</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Expected Part ID value from OTP (40 kPa variant) </p>
 
 </div>
 </div>
@@ -418,7 +439,7 @@ Enumerations</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Pressure scale factor (kPa) </p>
+<p>Pressure scale factor (kPa) for 200 kPa variant </p>
 
 </div>
 </div>
@@ -433,7 +454,37 @@ Enumerations</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Pressure offset (kPa) </p>
+<p>Pressure offset (kPa) for 200 kPa variant </p>
+
+</div>
+</div>
+<a id="a0d9e73c154b06812a259f3a7a582df54"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d9e73c154b06812a259f3a7a582df54">&#9670;&nbsp;</a></span>WF100DPZ_PRESSURE_SCALE_40KPA</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WF100DPZ_PRESSURE_SCALE_40KPA&#160;&#160;&#160;50.0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Pressure scale factor (kPa) for 40 kPa variant </p>
+
+</div>
+</div>
+<a id="a7037853be276bc77781809e58cbc6e80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7037853be276bc77781809e58cbc6e80">&#9670;&nbsp;</a></span>WF100DPZ_PRESSURE_OFFSET_40KPA</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WF100DPZ_PRESSURE_OFFSET_40KPA&#160;&#160;&#160;5.0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Pressure offset (kPa) for 40 kPa variant </p>
 
 </div>
 </div>
