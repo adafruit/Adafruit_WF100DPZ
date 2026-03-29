@@ -29,8 +29,10 @@
 
 /** Default I2C address (confirmed by bus scan; not in datasheet) */
 #define WF100DPZ_DEFAULT_ADDR 0x6D
-/** Expected Part ID value from OTP */
+/** Expected Part ID value from OTP (200 kPa variant) */
 #define WF100DPZ_PART_ID 0x49
+/** Expected Part ID value from OTP (40 kPa variant) */
+#define WF100DPZ_PART_ID_40KPA 0x51
 
 /** @name Register Addresses */
 /**@{*/
@@ -69,10 +71,14 @@
 /** @name Conversion Constants
  *  May need tuning for specific hardware variants */
 /**@{*/
-/** Pressure scale factor (kPa) */
+/** Pressure scale factor (kPa) for 200 kPa variant */
 #define WF100DPZ_PRESSURE_SCALE 250.0
-/** Pressure offset (kPa) */
+/** Pressure offset (kPa) for 200 kPa variant */
 #define WF100DPZ_PRESSURE_OFFSET 25.0
+/** Pressure scale factor (kPa) for 40 kPa variant */
+#define WF100DPZ_PRESSURE_SCALE_40KPA 50.0
+/** Pressure offset (kPa) for 40 kPa variant */
+#define WF100DPZ_PRESSURE_OFFSET_40KPA 5.0
 /** Pressure divisor (2^23) */
 #define WF100DPZ_PRESSURE_DIV 8388608.0
 /** Temperature offset (°C) - adjust if readings are consistently off */
@@ -146,6 +152,7 @@ class Adafruit_WF100DPZ {
   uint8_t getPartID();
   uint8_t getStatus();
   bool hasError();
+  float getMaxPressure();
 
   bool setMeasurementMode(wf100dpz_mode_t mode);
   wf100dpz_mode_t getMeasurementMode();
@@ -162,6 +169,9 @@ class Adafruit_WF100DPZ {
 
  private:
   Adafruit_I2CDevice* _i2c_dev;
+  float _pressureScale;
+  float _pressureOffset;
+  float _maxPressure;
 };
 
 #endif // ADAFRUIT_WF100DPZ_H

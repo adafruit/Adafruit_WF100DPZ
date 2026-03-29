@@ -6,7 +6,7 @@
 - **Interface:** I2C only (see SPI Investigation Notes below)
 - **I2C address:** 0x6D (confirmed by bus scan; not documented in datasheet)
 - **Part_ID:** 0x49 (OTP-programmed, read from register 0x01)
-- **Second device on bus:** 0x32 — appears to be onboard EEPROM (not used by driver)
+- **Second device on bus at scan time:** 0x32 — was the RV-8803 RTC on the same bus, not part of WF100DPZ
 - **Datasheet:** Product brief only; no programming guide. Conversion formulas
   derived from CodeyNacke/WF100DPZ reference library
   (https://github.com/CodeyNacke/WF100DPZ, MIT license).
